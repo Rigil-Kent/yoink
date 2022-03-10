@@ -62,10 +62,11 @@ class ComicArchiver:
         if not os.path.exists(self.worktree):
             os.makedirs(self.worktree, mode=0o777)
 
+        opener = urllib.request.build_opener()
+        opener.addheaders = [('User-Agent', 'Mozilla/5.0')]
+        urllib.request.install_opener(opener)
+
         for index,url in enumerate(self.comic.filelist):
-            opener = urllib.request.build_opener()
-            opener.addheaders = [('User-Agent', 'Mozilla/5.0')]
-            urllib.request.install_opener(opener)
 
             if not url.endswith('.jpg'):
                 formatted_file = os.path.join(self.worktree, f'{self.comic.title} ' + ''.join([str(index).zfill(3), '.jpg']))
@@ -75,6 +76,7 @@ class ComicArchiver:
                 page_number = url.split('/')[-1].split('.')[0].zfill(3)
                 file_extension = url.split('/')[-1].split('.')[1]
                 urllib.request.urlretrieve(url, filename=os.path.join(self.worktree, f'{self.comic.title}{page_number}.{file_extension}'))
+        print()
 
     def generate_archive(self, archive_format='.cbr'):
         if os.path.exists(os.path.join(self.worktree, f'{self.comic.title}{archive_format}')):
