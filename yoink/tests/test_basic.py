@@ -1,42 +1,41 @@
+import imp
+from bs4 import BeautifulSoup
+
 import os
 import unittest
-from bs4 import BeautifulSoup
-from yoink.bounty import Bounty, Downloader
-from yoink.provider import Provider, ReadAllComics
+
+from yoink.common import app_root, library_path, config_path, skippable_images, supported_sites, qb_client, required_comic_files, torrent_concurrent_download_limit, headers
+from yoink.comic import Comic, ComicArchiver
 
 
 
 class BasicTestCase(unittest.TestCase):
     def setUp(self):
         self.test_comic = 'http://readallcomics.com/static-season-one-4-2021/'
-        self.item = Bounty(self.test_comic)
+        self.comic = Comic(self.test_comic)
+        self.archiver = ComicArchiver(self.comic)
 
-    def test_000_provider_generates_or_fails_correctly(self):
-        # ensure valid comic link returns correct factory
-        self.assertTrue(isinstance(self.item.provider, ReadAllComics))
+    def test_000_comic_generates_valid_markup(self):
+        self.assertTrue('!DOCTYPE html' in str(self.comic.markup))
 
-        # ensure invalid comic link raises ValueError stating lack of support
-        def busted():
-            return Bounty('http://viz.com')
+    def test_001_comic_has_valid_title(self):
+        self.assertEqual('Static Season One 4 (2021)', self.comic.title)
 
-        with self.assertRaises(ValueError) as context:
-            busted() 
+    def test_002_comic_has_valid_category(self):
+        self.assertEqual('Static: Season One', self.comic.category)
 
-            self.assertTrue('Downloads for this site are not yet supported' in context.exception)
+    def test_003_empty_comic_folder(self):
+        self.assertEqual(len(os.listdir(os.path.join(library_path, 'comics'))), 0)
 
+    def test_004_comic_folder_created_and_populated(self):
+        self.archiver.download()
+        self.assertTrue(os.path.exists(os.path.join(library_path, f'comics/{self.comic.title}')))
+        self.assertGreater(len(os.listdir(os.path.join(library_path, f'comics/{self.comic.title}'))), 0)
 
-    def test_001_provider_markup_returns_200(self):
-        self.assertEqual(self.item.provider.markup.status_code, 200)
+    def test_005_comic_archive_generated(self):
+        self.archiver.generate_archive()
+        self.assertTrue(os.path.exists(os.path.join(library_path, f'comics/{self.comic.title}/{self.comic.title}.cbr')))
 
-
-    def test_002_provider_soup_object_exists(self):
-        self.assertTrue(isinstance(self.item.provider.soup, BeautifulSoup))
-
-
-    def test_003_downloader_object_exists(self):
-        self.assertTrue(isinstance(self.item.downloader, Downloader))
-
-    def test_004_downloader_paths_exist(self):
-        self.assertTrue(os.path.exists(self.item.downloader.root_path))
-        self.assertTrue(os.path.exists(self.item.downloader.config_path))
-
+    def test_006_folder_cleaned_after_archive_generation(self):
+        self.archiver.cleanup_worktree()
+        self.assertAlmostEqual(len(os.listdir(os.path.join(library_path, f'comics/{self.comic.title}'))), 3)
