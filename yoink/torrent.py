@@ -1,14 +1,18 @@
 from bs4 import BeautifulSoup
+from qbittorrent import Client
 import requests
 
 import os
 
-from yoink.common import qb_client, library_path, config_path, app_root, headers
+from yoink.common import  library_path, config_path, app_root, headers
 from yoink.scraper import Scrapable
 
 
 
 stopped_state = ('pausedUP', 'stalledUP', 'uploading', 'seeding')
+
+
+
 
 
 
@@ -24,7 +28,7 @@ class TorrentDownloader:
 
     @classmethod
     def get_torrent(cls, name):
-        return [torrent for torrent in qb_client.torrents() if name == torrent['name']][0]
+        return [torrent for torrent in new_downloader.torrents() if name == torrent['name']][0]
 
     @classmethod
     def quick_download(cls, url):
@@ -36,7 +40,8 @@ class TorrentDownloader:
             soup = BeautifulSoup(markup, 'html.parser')
             magnet_link = soup.find('a', attrs={'title': 'Get this torrent'}.attrs['href'])
 
-        qb_client.download_from_link(url if url.startswith('magnet') else magnet_link)
+        # qb_client.download_from_link(url if url.startswith('magnet') else magnet_link)
+        new_downloader.torrents.add(urls=url if url.startswith('magnet') else magnet_link)
 
 
     def set_path(self, path):
@@ -53,21 +58,30 @@ class TorrentDownloader:
     def add(self, torrent):
         if not isinstance(torrent, Torrent):
             raise TypeError('Not a valid torrent')
-            
+
         self.queue.append(torrent)
 
+    # TODO separate download method into new thread
     def download(self):
         while len(self.queue) > 0:
             for torrent in self.queue:
                 if not isinstance(torrent, Torrent):
                     raise TypeError('Not a valid torrent')
 
-                qb_client.download_from_link(torrent.magnet_link)
+                # qb_client.download_from_link(torrent.magnet_link)
+                print(torrent.magnet_link)
+                # qb_client2.torrents.add(urls=torrent.magnet_link)
+                # print(new_downloader.torrents())
+
+
+downloader = TorrentDownloader()
+
 
 
 class Torrent(Scrapable):
     def __init__(self, url) -> None:
         super().__init__(url)
+
     
     @property
     def name(self) -> str: return self.soup.find('div', attrs={'id': 'title'})

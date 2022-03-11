@@ -12,6 +12,7 @@ import urllib
 class Comic(Scrapable):
     def __init__(self, url) -> None:
         super().__init__(url)
+        self.archiver = ComicArchiver(self)
 
 
     def __get_image_src(self, comic):

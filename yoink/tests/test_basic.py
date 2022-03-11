@@ -1,11 +1,11 @@
-import imp
 from bs4 import BeautifulSoup
 
 import os
 import unittest
 
-from yoink.common import app_root, library_path, config_path, skippable_images, supported_sites, qb_client, required_comic_files, torrent_concurrent_download_limit, headers
+from yoink.common import app_root, library_path, config_path, skippable_images, supported_sites, required_comic_files, torrent_concurrent_download_limit, headers
 from yoink.comic import Comic, ComicArchiver
+from yoink.scraper import Scrapable
 
 
 
@@ -39,3 +39,16 @@ class BasicTestCase(unittest.TestCase):
     def test_006_folder_cleaned_after_archive_generation(self):
         self.archiver.cleanup_worktree()
         self.assertAlmostEqual(len(os.listdir(os.path.join(library_path, f'comics/{self.comic.title}'))), 3)
+
+    def test_007_comic_instance_has_archiver(self):
+        self.assertIsInstance(self.comic.archiver, ComicArchiver)
+
+    def test_008_comic_is_subclass_scrapable(self):
+        self.assertTrue(issubclass(Comic, Scrapable))
+
+    def test_009_invalid_comic_link(self):
+
+        with self.assertRaises(ValueError) as condition:
+            comic = Comic('https://viz.com')
+
+        self.assertTrue('Unsupported' in str(condition.exception))
