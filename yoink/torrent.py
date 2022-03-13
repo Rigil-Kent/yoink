@@ -1,5 +1,4 @@
 from bs4 import BeautifulSoup
-from qbittorrent import Client
 import requests
 
 import os
@@ -26,9 +25,9 @@ class TorrentDownloader:
     def create_torrent(cls, url):
         return Torrent(url)
 
-    @classmethod
-    def get_torrent(cls, name):
-        return [torrent for torrent in new_downloader.torrents() if name == torrent['name']][0]
+    # @classmethod
+    # def get_torrent(cls, name):
+    #     return [torrent for torrent in new_downloader.torrents() if name == torrent['name']][0]
 
     @classmethod
     def quick_download(cls, url):
@@ -40,8 +39,7 @@ class TorrentDownloader:
             soup = BeautifulSoup(markup, 'html.parser')
             magnet_link = soup.find('a', attrs={'title': 'Get this torrent'}.attrs['href'])
 
-        # qb_client.download_from_link(url if url.startswith('magnet') else magnet_link)
-        new_downloader.torrents.add(urls=url if url.startswith('magnet') else magnet_link)
+        
 
 
     def set_path(self, path):
@@ -68,10 +66,8 @@ class TorrentDownloader:
                 if not isinstance(torrent, Torrent):
                     raise TypeError('Not a valid torrent')
 
-                # qb_client.download_from_link(torrent.magnet_link)
                 print(torrent.magnet_link)
-                # qb_client2.torrents.add(urls=torrent.magnet_link)
-                # print(new_downloader.torrents())
+
 
 
 downloader = TorrentDownloader()

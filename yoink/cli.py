@@ -1,18 +1,30 @@
+import os
+import sys
 import click
-import libtorrent as lib
 
 from yoink.common import  app_root, library_path, config_path
 from yoink.comic import Comic
-from yoink.torrent import Torrent, downloader
 
 
-session = lib.session()
-session.listen_on(6881, 6891)
+
 queue = []
 
 @click.group()
-def yoink():
-    pass
+@click.option('-c', '--comic', help='Download a Comic file')
+@click.option('-t', '--torrent', help='Download a Torrent')
+def yoink(comic, torrent):
+    if comic:
+        click.echo('Downloading a comic')
+    
+    if torrent:
+        click.echo('Downloading a torrent')
+
+
+
+@yoink.command()
+def init():
+
+    click.echo(f'Initializing for {sys.platform}')
 
 
 @yoink.command()
@@ -32,21 +44,6 @@ def download(url):
     # comic.archiver.cleanup_worktree()
     # click.echo('Success')
 
-    torrent = Torrent(url)
-    print(torrent.magnet_link)
-
-    # queue.append(lib.add_magnet_uri(session, torrent.magnet_link, {'save_path': library_path}))
-
-    # while queue:
-    #     next_shift = 0
-
-    #     for index, download in enumerate(queue):
-    #         if not download.is_seed():
-    #             status = download.status()
-
-
-    # downloader.add(torrent)
-    # downloader.download()
 
 if __name__=='__main__':
     yoink()
