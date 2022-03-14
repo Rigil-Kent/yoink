@@ -1,6 +1,8 @@
+from email.policy import default
 import os
 import sys
 import click
+from click_default_group import DefaultGroup
 
 from yoink.common import  app_root, library_path, config_path
 from yoink.comic import Comic
@@ -9,7 +11,7 @@ from yoink.comic import Comic
 
 queue = []
 
-@click.group()
+@click.group(cls=DefaultGroup, default='init', default_if_no_args=True)
 @click.option('-c', '--comic', help='Download a Comic file')
 @click.option('-t', '--torrent', help='Download a Torrent')
 def yoink(comic, torrent):
