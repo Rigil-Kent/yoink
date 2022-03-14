@@ -26,7 +26,8 @@ class Comic(Scrapable):
         soup = {
             'default': self.soup.find_all('div', class_='separator'),
             'no-div': self.soup.find_all('img', attrs={'width': '1000px'}),
-            'excaliber': self.soup.find_all('img')
+            'excaliber': self.soup.find_all('img'),
+            'dbsuper': self.soup.findAll('meta', attrs={'property': 'twitter:image'})
         }
 
         for case in soup.keys():
