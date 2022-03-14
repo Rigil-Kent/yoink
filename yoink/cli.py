@@ -11,15 +11,9 @@ from yoink.comic import Comic
 
 queue = []
 
-@click.group(cls=DefaultGroup, default='init', default_if_no_args=True)
-@click.option('-c', '--comic', help='Download a Comic file')
-@click.option('-t', '--torrent', help='Download a Torrent')
-def yoink(comic, torrent):
-    if comic:
-        click.echo('Downloading a comic')
-    
-    if torrent:
-        click.echo('Downloading a torrent')
+@click.group(cls=DefaultGroup, default='download', default_if_no_args=True)
+def yoink():
+    pass
 
 
 
@@ -30,21 +24,34 @@ def init():
 
 
 @yoink.command()
+@click.option('-c', '--comic', is_flag=True, help='Download a Comic file')
+@click.option('-t', '--torrent', is_flag=True, help='Download a Torrent')
+@click.option('-p', '--path', help='Change the download path')
 @click.argument('url')
-def download(url):
+def download(url, comic, torrent, path):
     # Account for whitespace/blank urls
     if url.strip() == '':
         click.echo('url cannot be blank')
         return 1
 
-    # comic = Comic(url)
-    # click.echo(f'Downloading {comic.title}')
-    # comic.archiver.download()
-    # click.echo('Building comic archive')
-    # comic.archiver.generate_archive()
-    # click.echo('Cleaning up')
-    # comic.archiver.cleanup_worktree()
-    # click.echo('Success')
+    if comic:
+        try:
+            comic = Comic(url, path=path if path else None)
+        except ValueError:
+            click.echo(f'{url} is not supported or is not a valid URL')
+            return 1
+        click.echo(f'Downloading {comic.title}')
+        comic.archiver.download()
+        click.echo('Building comic archive')
+        comic.archiver.generate_archive()
+        click.echo('Cleaning up')
+        comic.archiver.cleanup_worktree()
+        click.echo('Success')
+    
+    if torrent:
+        click.echo('Downloading a torrent')
+
+    
 
 
 if __name__=='__main__':

@@ -10,9 +10,9 @@ import urllib
 
 
 class Comic(Scrapable):
-    def __init__(self, url) -> None:
+    def __init__(self, url, path=None) -> None:
         super().__init__(url)
-        self.archiver = ComicArchiver(self)
+        self.archiver = ComicArchiver(self, library=path)
 
 
     def __get_image_src(self, comic):
@@ -54,9 +54,9 @@ class Comic(Scrapable):
 
 
 class ComicArchiver:
-    def __init__(self, comic : Comic) -> None:
+    def __init__(self, comic : Comic, library=None) -> None:
         self.comic = comic
-        self.worktree = os.path.join(library_path, f'comics/{self.comic.title}')
+        self.worktree = library if library else os.path.join(library_path, f'comics/{self.comic.title}')
     
     def download(self):
 
