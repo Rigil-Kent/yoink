@@ -1,8 +1,17 @@
-pytest:
-  stage: test
+image: python:latest
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+cache:
+  paths:
+    - .cache/pip
+    - venv
+before_script:
+  - python --version
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+  - pip install -r requirements.txt
+test:
   script:
-    - pytest --junitxml report.xml yoink/tests/test_basic.py 
-  artifacts:
-    when: always
-    reports:
-      junit: report.xml
+    - pytest --junitxml report.xml yoink/tests/test_basic.py
+
