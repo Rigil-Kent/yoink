@@ -94,10 +94,12 @@ class ComicArchiver:
         print()
 
     def generate_archive(self, archive_format='.cbr'):
+
+        archive_from = os.path.basename(self.worktree)
         if os.path.exists(os.path.join(self.worktree, f'{self.comic.title}{archive_format}')):
             return
 
-        output = shutil.make_archive(os.path.join(self.worktree, self.comic.title), 'zip', self.worktree)
+        output = shutil.make_archive(os.path.join(self.worktree, self.comic.title), 'zip', self.worktree, self.worktree)
         os.rename(output, os.path.join(self.worktree, f'{self.comic.title}{archive_format}'))
 
 
