@@ -44,7 +44,6 @@ class Comic(Scrapable):
     @property
     def filelist(self):
         comics = self.__parse_soup()
-        for comic in comics: print(comic)
         return [comic for comic in list(map(self.__get_image_src, comics)) if not comic.endswith(skippable_images)]
 
 
@@ -98,7 +97,7 @@ class ComicArchiver:
         if os.path.exists(os.path.join(self.worktree, f'{self.comic.title}{archive_format}')):
             return
 
-        output = shutil.make_archive(self.comic.title, 'zip', self.worktree)
+        output = shutil.make_archive(os.path.join(self.worktree, self.comic.title), 'zip', self.worktree)
         os.rename(output, os.path.join(self.worktree, f'{self.comic.title}{archive_format}'))
 
 
