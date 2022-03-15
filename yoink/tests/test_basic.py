@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 
 import os
 import unittest
+from shutil import rmtree
 
 from yoink.common import app_root, library_path, config_path, skippable_images, supported_sites, required_comic_files, torrent_concurrent_download_limit, headers
 from yoink.comic import Comic, ComicArchiver
@@ -14,6 +15,14 @@ class BasicTestCase(unittest.TestCase):
         self.test_comic = 'http://readallcomics.com/static-season-one-4-2021/'
         self.comic = Comic(self.test_comic)
         self.archiver = ComicArchiver(self.comic)
+        self.remove_queue = []
+
+        
+    def tearDown(self) -> None:
+        for folder in self.remove_queue:
+            rmtree(folder)
+        
+
 
     def test_000_comic_generates_valid_markup(self):
         self.assertTrue('!DOCTYPE html' in str(self.comic.markup))
@@ -52,3 +61,6 @@ class BasicTestCase(unittest.TestCase):
             comic = Comic('https://viz.com')
 
         self.assertTrue('Unsupported' in str(condition.exception))
+
+        self.remove_queue.append(os.path.join(library_path, f'comics/{self.comic.title}'))
+    

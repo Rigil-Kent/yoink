@@ -1,0 +1,8 @@
+ruby:
+  stage: test
+  script:
+    - pytest --junitxml report.xml yoink/tests/test_basic.py 
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml

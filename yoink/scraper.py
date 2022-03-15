@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 
-
 from yoink.common import supported_sites
 
 
@@ -12,17 +11,19 @@ class Scrapable:
 
         
         self.__check_site_support()
-        # for link in supported_sites:
-        #     if link in self.url:
-        #         return
-        #     else:
-        #         raise ValueError('Unsupported site')
-        # if not any(url in link for link in supported_sites):
-        #     raise ValueError('Unsupported site')
 
 
     @property
-    def markup(self) -> str: return requests.get(self.url).content
+    def markup(self) -> str:
+        try:
+            # raise_for_status alters the default response behavior allowing http errors to raise exception
+            req = requests.get(self.url)
+            req.raise_for_status()
+            return req.content
+        except requests.exceptions.HTTPError as e:
+            # returns {status_code} Client Error: Not found for url: {self.url} in the event of any http errors and exits
+            raise SystemExit(e)
+
 
     @property
     def soup(self) -> BeautifulSoup: return BeautifulSoup(self.markup, 'html.parser')

@@ -1,5 +1,3 @@
-from click import format_filename
-from soupsieve import select
 from yoink.common import required_comic_files, skippable_images, library_path
 from yoink.scraper import Scrapable
 
@@ -14,10 +12,16 @@ class Comic(Scrapable):
         super().__init__(url)
         self.archiver = ComicArchiver(self, library=path)
 
+    def __is_supported_image(self, image):
+        return image.endswith('.jpg' or '.jpeg')
+
 
     def __get_image_src(self, comic):
         if comic.attrs:
-            return comic.attrs['src']
+            try:
+                return comic.attrs['src']
+            except KeyError:
+                return comic['data-src']
 
         for image in comic:
             return image.attrs['src']
@@ -27,7 +31,8 @@ class Comic(Scrapable):
             'default': self.soup.find_all('div', class_='separator'),
             'no-div': self.soup.find_all('img', attrs={'width': '1000px'}),
             'excaliber': self.soup.find_all('img'),
-            'dbsuper': self.soup.findAll('meta', attrs={'property': 'twitter:image'})
+            'dbsuper': self.soup.findAll('meta', attrs={'property': 'twitter:image'}),
+            'mangadex': self.soup.find_all('img', attrs={'draggable': 'false'})
         }
 
         for case in soup.keys():
@@ -39,11 +44,18 @@ class Comic(Scrapable):
     @property
     def filelist(self):
         comics = self.__parse_soup()
+        for comic in comics: print(comic)
         return [comic for comic in list(map(self.__get_image_src, comics)) if not comic.endswith(skippable_images)]
 
 
     @property
-    def title(self): return self.soup.title.string.replace(' | Read All Comics Online For Free', '').replace('…', '').replace('#', '').replace(':', '').strip()
+    def title(self):
+        if 'readallcomics' in self.url:
+            return self.soup.title.string.replace(' | Read All Comics Online For Free', '').replace('…', '').replace('#', '').replace(':', '').strip()
+        elif 'mangadex' in self.url:
+            return self.soup.find('meta', property='og:title').attrs['content'].replace(' - Mangadex', '').replace('Read ', '')
+        else:
+            return 'Uncategorized'
 
     @property
     def category(self):
@@ -75,9 +87,11 @@ class ComicArchiver:
                 print(formatted_file, end='\r')
                 urllib.request.urlretrieve(url, filename=formatted_file)
             else:
-                page_number = url.split('/')[-1].split('.')[0].zfill(3)
+                page_number = str(index).zfill(3)
                 file_extension = url.split('/')[-1].split('.')[1]
-                urllib.request.urlretrieve(url, filename=os.path.join(self.worktree, f'{self.comic.title}{page_number}.{file_extension}'))
+                formatted_file = f'{self.comic.title} - {page_number}.{file_extension}'
+                print(formatted_file, end='\r')
+                urllib.request.urlretrieve(url, filename=os.path.join(self.worktree, formatted_file))
         print()
 
     def generate_archive(self, archive_format='.cbr'):
@@ -95,10 +109,4 @@ class ComicArchiver:
 
 if __name__ == '__main__':
     comic = Comic('http://www.readallcomics.com/static-season-one-4-2021/')
-    # # print(comic.filelist)
-    # # print(len(comic.filelist))
-    # archiver = ComicArchiver(comic)
-    # archiver.download()
-    # archiver.generate_archive()
-    # archiver.cleanup_worktree()
     print(comic.category)

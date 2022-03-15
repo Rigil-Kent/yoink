@@ -40,16 +40,20 @@ def download(url, comic, torrent, path):
         except ValueError:
             click.echo(f'{url} is not supported or is not a valid URL')
             return 1
+
         click.echo(f'Downloading {comic.title}')
         comic.archiver.download()
+
         click.echo('Building comic archive')
         comic.archiver.generate_archive()
+
         click.echo('Cleaning up')
         comic.archiver.cleanup_worktree()
+        
         click.echo('Success')
     
     if torrent:
-        click.echo('Downloading a torrent')
+        click.echo('Opps! It looks like Torrents aren\'t yet fully supported.')
 
     
 
