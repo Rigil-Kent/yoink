@@ -1,6 +1,8 @@
-import os
 import requests
 from bs4 import BeautifulSoup
+
+import os
+from enum import Enum, auto
 
 from yoink.common import supported_sites, library_path
 
@@ -10,11 +12,10 @@ class Scrapable:
     def __init__(self, url) -> None:
         self.url = url
         comic_path = os.path.join(library_path, 'comics')
+        
         if not os.path.exists(comic_path):
             os.makedirs(comic_path)
 
-
-        
         self.__check_site_support()
 
 

@@ -4,6 +4,7 @@ from yoink.scraper import Scrapable
 import os
 import shutil
 import urllib
+import re
 
 
 
@@ -61,6 +62,44 @@ class Comic(Scrapable):
         data = self.soup.find('a', attrs={'rel': 'category tag'} )
         return data.text
 
+    @property
+    def series_list(self) -> list:
+        queue = []
+
+        return queue
+
+    @property
+    def issue_number(self) -> int:
+        date_reg = re.search("(\([12]\d{3}\))", self.title)
+
+        try:
+            return int(self.title[:date_reg.start() - 1][-1])
+        except TypeError:
+            return 1
+        except AttributeError:
+            return 1
+
+    @property
+    def volume(self) -> int:
+        return
+
+    @property
+    def next(self):
+        ''' returns the url of the next comic in the series. returns None if current'''
+        try:
+            return self.soup.find('img', attrs={'title': 'Next Issue'}).parent.attrs['href'] or None
+        except AttributeError:
+            return None
+
+    @property
+    def prev(self):
+        ''' returns the url of the previous comic in the series. returns None if first'''
+        try:
+            return self.soup.find('img', attrs={'title': 'Previous Issue'}).parent.attrs['href']
+        except AttributeError:
+            return None
+
+
     def can_remove(self, filename):
         return not filename.endswith(required_comic_files)
 
@@ -69,6 +108,10 @@ class ComicArchiver:
     def __init__(self, comic : Comic, library=None) -> None:
         self.comic = comic
         self.worktree = library if library else os.path.join(library_path, f'comics/{self.comic.title}')
+        self.queue = []
+
+    def add(self, link):
+        self.queue.append(link)
     
     def download(self):
 
@@ -78,6 +121,7 @@ class ComicArchiver:
         opener = urllib.request.build_opener()
         opener.addheaders = [('User-Agent', 'Mozilla/5.0')]
         urllib.request.install_opener(opener)
+        print('\n')
 
         for index,url in enumerate(self.comic.filelist):
 
@@ -88,8 +132,12 @@ class ComicArchiver:
             else:
                 page_number = str(index).zfill(3)
                 file_extension = url.split('/')[-1].split('.')[1]
+
+                if len(file_extension) > 3:
+                    file_extension = 'jpg'
+
                 formatted_file = f'{self.comic.title} - {page_number}.{file_extension}'
-                print(formatted_file, end='\r')
+                print(formatted_file, end='\r',)
                 urllib.request.urlretrieve(url, filename=os.path.join(self.worktree, formatted_file))
         print()
 
@@ -99,7 +147,7 @@ class ComicArchiver:
         if os.path.exists(os.path.join(self.worktree, f'{self.comic.title}{archive_format}')):
             return
 
-        output = shutil.make_archive(os.path.join(self.worktree, self.comic.title), 'zip', self.worktree, self.worktree)
+        output = shutil.make_archive(self.comic.title, 'zip', self.worktree, self.worktree)
         os.rename(output, os.path.join(self.worktree, f'{self.comic.title}{archive_format}'))
 
 
@@ -109,5 +157,11 @@ class ComicArchiver:
                 os.remove(os.path.join(self.worktree, image))
 
 if __name__ == '__main__':
-    comic = Comic('http://www.readallcomics.com/static-season-one-4-2021/')
-    print(comic.category)
+    comic = Comic('http://www.readallcomics.com/static-season-one-4-2021/') # all links
+    # comic = Comic('http://readallcomics.com/static-season-one-001-2021/') # no prev link
+    # comic = Comic('http://readallcomics.com/static-season-one-6-2022/') # no next link
+    comic = Comic('http://readallcomics.com/superman-vs-lobo-4-2022/')
+    test_comic_b = 'http://readallcomics.com/captain-marvel-vs-rogue-2021-part-1/'
+    print(comic.next)
+    print(comic.prev)
+    print(comic.issue_number)

@@ -24,37 +24,36 @@ def init():
 
 
 @yoink.command()
-@click.option('-c', '--comic', is_flag=True, help='Download a Comic file')
-@click.option('-t', '--torrent', is_flag=True, help='Download a Torrent')
+# @click.option('-c', '--comic', is_flag=True, help='Download a Comic file')
+# @click.option('-t', '--torrent', is_flag=True, help='Download a Torrent')
+@click.option('-s', '--series', is_flag=True, help='Download the entire series')
 @click.option('-p', '--path', help='Change the download path')
 @click.argument('url')
-def download(url, comic, torrent, path):
+def download(url, path, series):
     # Account for whitespace/blank urls
     if url.strip() == '':
         click.echo('url cannot be blank')
         return 1
 
-    if comic:
-        try:
-            comic = Comic(url, path=path if path else None)
-        except ValueError:
-            click.echo(f'{url} is not supported or is not a valid URL')
-            return 1
+    try:
+        comic = Comic(url, path=path if path else None)
+    except ValueError:
+        click.echo(f'{url} is not supported or is not a valid URL')
+        return 1
 
-        click.echo(f'Downloading {comic.title}')
-        comic.archiver.download()
+    if series:
+        comic.generate_series_queue()
 
-        click.echo('Building comic archive')
-        comic.archiver.generate_archive()
+    click.echo(f'Downloading {comic.title}')
+    comic.archiver.download()
 
-        click.echo('Cleaning up')
-        comic.archiver.cleanup_worktree()
-        
-        click.echo('Success')
-    
-    if torrent:
-        click.echo('Opps! It looks like Torrents aren\'t yet fully supported.')
+    click.echo('Building comic archive')
+    comic.archiver.generate_archive()
 
+    click.echo('Cleaning up')
+    comic.archiver.cleanup_worktree()
+
+    click.echo('Success')
     
 
 
