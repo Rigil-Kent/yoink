@@ -70,6 +70,7 @@ class Comic(Scrapable):
 
     @property
     def issue_number(self) -> int:
+        # maches any year in parentheses 
         date_reg = re.search("(\([12]\d{3}\))", self.title)
 
         try:
@@ -121,7 +122,6 @@ class ComicArchiver:
         opener = urllib.request.build_opener()
         opener.addheaders = [('User-Agent', 'Mozilla/5.0')]
         urllib.request.install_opener(opener)
-        print('\n')
 
         for index,url in enumerate(self.comic.filelist):
 
@@ -148,6 +148,8 @@ class ComicArchiver:
             return
 
         output = shutil.make_archive(self.comic.title, 'zip', self.worktree, self.worktree)
+        # os.rename casuses OSError: [Errno 18] Invalid cross-device link and files build test
+        # os rename only works if src and dest are on the same file system
         shutil.move(output, os.path.join(self.worktree, f'{self.comic.title}{archive_format}'))
 
 
