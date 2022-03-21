@@ -70,7 +70,8 @@ class Comic(Scrapable):
 
     @property
     def issue_number(self) -> int:
-        # maches any year in parentheses 
+        # matches any year in parentheses 
+        # TODO fix yoink/comic.py:74: DeprecationWarning: invalid escape sequence '\('
         date_reg = re.search("(\([12]\d{3}\))", self.title)
 
         try:
