@@ -148,7 +148,7 @@ class ComicArchiver:
             return
 
         output = shutil.make_archive(self.comic.title, 'zip', self.worktree, self.worktree)
-        os.rename(output, os.path.join(self.worktree, f'{self.comic.title}{archive_format}'))
+        shutil.move(output, os.path.join(self.worktree, f'{self.comic.title}{archive_format}'))
 
 
     def cleanup_worktree(self):
