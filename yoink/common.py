@@ -1,13 +1,15 @@
-import pathlib
+from pathlib import Path
 # TODO replace os path with pathlib
 import os
 from enum import Enum, auto
 
 
 
+# TODO replace expan user
+home_folder = Path.home()
 app_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-config_path = os.path.abspath(os.path.join(os.environ.get('HOME'), '.config/yoink'))
-library_path = os.path.abspath(os.path.join(os.environ.get('HOME'), 'yoink/library'))
+config_path = os.path.abspath(os.path.join(os.path.expanduser('~'), '.config/yoink'))
+library_path = os.path.abspath(os.path.join(os.path.expanduser('~'), 'yoink/library'))
 required_comic_files = ('.cbr', '.cbz', '000.jpg', '001.jpg')
 skippable_images = ('logo-1.png', 'logo.png', 'report.png', 'request.png', 'prev.png', 'Next.png', 'Donate.png', '11.png', 'navbar.svg')
 supported_sites = ['readallcomics.com', 'tpb.party', 'dragonballsupermanga.net', 'mangadex.tv']
