@@ -9,7 +9,7 @@ from yoink.common import supported_sites, library_path
 
 
 class Scrapable:
-    def __init__(self, url) -> None:
+    def __init__(self, url : str) -> None:
         self.url = url
         comic_path = os.path.join(library_path, 'comics')
         
@@ -35,7 +35,7 @@ class Scrapable:
     def soup(self) -> BeautifulSoup: return BeautifulSoup(self.markup, 'html.parser')
 
 
-    def __check_site_support(self):
+    def __check_site_support(self) -> None:
         num_of_sites = len(supported_sites)
 
         while num_of_sites > 0:

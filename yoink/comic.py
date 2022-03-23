@@ -17,7 +17,7 @@ class Comic(Scrapable):
         return image.endswith('.jpg' or '.jpeg')
 
 
-    def __get_image_src(self, comic):
+    def __get_image_src(self, comic) -> str:
         if comic.attrs:
             try:
                 return comic.attrs['src']
@@ -27,7 +27,7 @@ class Comic(Scrapable):
         for image in comic:
             return image.attrs['src']
 
-    def __parse_soup(self):
+    def __parse_soup(self) -> list:
         soup = {
             'default': self.soup.find_all('div', class_='separator'),
             'no-div': self.soup.find_all('img', attrs={'width': '1000px'}),
@@ -43,13 +43,13 @@ class Comic(Scrapable):
                 return comics
 
     @property
-    def filelist(self):
+    def filelist(self) -> list:
         comics = self.__parse_soup()
         return [comic for comic in list(map(self.__get_image_src, comics)) if not comic.endswith(skippable_images)]
 
 
     @property
-    def title(self):
+    def title(self) -> str:
         if 'readallcomics' in self.url:
             return self.soup.title.string.replace(' | Read All Comics Online For Free', '').replace('…', '').replace('#', '').replace(':', '').strip()
         elif 'mangadex' in self.url:
@@ -58,7 +58,7 @@ class Comic(Scrapable):
             return 'Uncategorized'
 
     @property
-    def category(self):
+    def category(self) -> str:
         data = self.soup.find('a', attrs={'rel': 'category tag'} )
         return data.text
 
@@ -71,11 +71,10 @@ class Comic(Scrapable):
     @property
     def issue_number(self) -> int:
         # matches any year in parentheses (xxxx)
-        # TODO yoink/comic.py:74: DeprecationWarning: invalid escape sequence '\('
-        date_reg = re.search("(\([12]\d{3}\))", self.title)
+        year_regex = re.search("(\([12]\d{3}\))", self.title)
 
         try:
-            return int(self.title[:date_reg.start() - 1][-1])
+            return int(self.title[:year_regex.start() - 1][-1])
         except TypeError:
             return 1
         except AttributeError:
@@ -86,7 +85,7 @@ class Comic(Scrapable):
         return
 
     @property
-    def next(self):
+    def next(self) -> str:
         ''' returns the url of the next comic in the series. returns None if current'''
         try:
             return self.soup.find('img', attrs={'title': 'Next Issue'}).parent.attrs['href'] or None
@@ -94,7 +93,7 @@ class Comic(Scrapable):
             return None
 
     @property
-    def prev(self):
+    def prev(self) -> str:
         ''' returns the url of the previous comic in the series. returns None if first'''
         try:
             return self.soup.find('img', attrs={'title': 'Previous Issue'}).parent.attrs['href']
@@ -102,7 +101,7 @@ class Comic(Scrapable):
             return None
 
 
-    def can_remove(self, filename):
+    def can_remove(self, filename : str) -> bool:
         return not filename.endswith(required_comic_files)
 
 
@@ -112,10 +111,10 @@ class ComicArchiver:
         self.worktree = library if library else os.path.join(library_path, f'comics/{self.comic.title}')
         self.queue = []
 
-    def add(self, link):
+    def add(self, link : str) -> None:
         self.queue.append(link)
     
-    def download(self):
+    def download(self) -> None:
 
         if not os.path.exists(self.worktree):
             os.makedirs(self.worktree, mode=0o777)
@@ -163,8 +162,8 @@ if __name__ == '__main__':
     comic = Comic('http://www.readallcomics.com/static-season-one-4-2021/') # all links
     # comic = Comic('http://readallcomics.com/static-season-one-001-2021/') # no prev link
     # comic = Comic('http://readallcomics.com/static-season-one-6-2022/') # no next link
-    comic = Comic('http://readallcomics.com/superman-vs-lobo-4-2022/')
-    test_comic_b = 'http://readallcomics.com/captain-marvel-vs-rogue-2021-part-1/'
-    print(comic.next)
-    print(comic.prev)
-    print(comic.issue_number)
+    # comic = Comic('http://readallcomics.com/superman-vs-lobo-4-2022/')
+    # test_comic_b = 'http://readallcomics.com/captain-marvel-vs-rogue-2021-part-1/'
+    # print(comic.next)
+    # print(comic.prev)
+    # print(comic.issue_number)

@@ -14,14 +14,16 @@ class BasicTestCase(unittest.TestCase):
     def setUp(self):
         self.test_comic = 'http://readallcomics.com/static-season-one-4-2021/'
         self.test_comic_b = 'http://readallcomics.com/captain-marvel-vs-rogue-2021-part-1/'
-        self.comic = Comic(self.test_comic_b)
+        self.comic = Comic(self.test_comic)
         self.archiver = ComicArchiver(self.comic)
         self.remove_queue = []
         self.expected_title = 'Static Season One 4 (2021)'
         self.expected_title_b = 'Captain Marvel vs. Rogue (2021 – Part 1)'
         self.expected_category = 'Static: Season One'
         self.expected_category_b = 'Captain Marvel vs. Rogue'
-        self.expected_issue_num = 1
+        self.expected_issue_num = 4
+        self.expected_next_url = 'http://readallcomics.com/static-season-one-5-2022/'
+        self.expected_prev_url = 'http://readallcomics.com/static-season-one-003-2021/'
 
         
     def tearDown(self) -> None:
@@ -34,10 +36,10 @@ class BasicTestCase(unittest.TestCase):
         self.assertTrue('!DOCTYPE html' in str(self.comic.markup))
 
     def test_001_comic_has_valid_title(self):
-        self.assertEqual(self.expected_title_b, self.comic.title)
+        self.assertEqual(self.expected_title, self.comic.title)
 
     def test_002_comic_has_valid_category(self):
-        self.assertEqual(self.expected_category_b, self.comic.category)
+        self.assertEqual(self.expected_category, self.comic.category)
 
     def test_003_empty_comic_folder(self):
         self.assertEqual(len(os.listdir(os.path.join(library_path, 'comics'))), 0)
@@ -73,4 +75,10 @@ class BasicTestCase(unittest.TestCase):
     def test_010_valid_issue_number(self):
         self.assertIsInstance(self.comic.issue_number, int)
         self.assertEqual(self.comic.issue_number, self.expected_issue_num)
+
+    def test_011_has_next_link(self):
+        self.assertEqual(self.comic.next, self.expected_next_url)
+
+    def test_012_has_prev_link(self):
+        self.assertEqual(self.comic.prev, self.expected_prev_url)
     

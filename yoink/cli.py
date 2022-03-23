@@ -1,5 +1,6 @@
 from email.policy import default
 import os
+from subprocess import check_output
 import sys
 import click
 from click_default_group import DefaultGroup
@@ -10,6 +11,29 @@ from yoink.comic import Comic
 
 
 queue = []
+
+
+def download_comic(url, path, series):
+    try:
+        comic = Comic(url, path=path if path else None)
+    except ValueError:
+        click.echo(f'{url} is not supported or is not a valid URL')
+        return 1
+
+    click.echo(f'Downloading {comic.title}')
+    comic.archiver.download()
+
+    click.echo('Building comic archive')
+    comic.archiver.generate_archive()
+
+    click.echo('Cleaning up')
+    comic.archiver.cleanup_worktree()
+
+    click.echo('Success')
+
+    if series and comic.next:
+        download_comic(comic.next, path, series)
+
 
 @click.group(cls=DefaultGroup, default='download', default_if_no_args=True)
 def yoink():
@@ -35,25 +59,7 @@ def download(url, path, series):
         click.echo('url cannot be blank')
         return 1
 
-    try:
-        comic = Comic(url, path=path if path else None)
-    except ValueError:
-        click.echo(f'{url} is not supported or is not a valid URL')
-        return 1
-
-    if series:
-        comic.generate_series_queue()
-
-    click.echo(f'Downloading {comic.title}')
-    comic.archiver.download()
-
-    click.echo('Building comic archive')
-    comic.archiver.generate_archive()
-
-    click.echo('Cleaning up')
-    comic.archiver.cleanup_worktree()
-
-    click.echo('Success')
+    download_comic(url, path, series)
     
 
 
