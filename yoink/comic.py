@@ -1,3 +1,4 @@
+from urllib.error import HTTPError
 from yoink.config import required_archive_files, skippable_images, library_path, config
 from yoink.scraper import Scrapable
 
@@ -71,7 +72,7 @@ class Comic(Scrapable):
     @property
     def issue_number(self) -> int:
         # matches any year in parentheses (xxxx)
-        year_regex = re.search("(\([12]\d{3}\))", self.title)
+        year_regex = re.search("(\\([12]\\d{3}\\))", self.title)
 
         try:
             return int(self.title[:year_regex.start() - 1][-1])
@@ -123,22 +124,27 @@ class ComicArchiver:
         opener.addheaders = [('User-Agent', 'Mozilla/5.0')]
         urllib.request.install_opener(opener)
 
-        for index,url in enumerate(self.comic.filelist):
+        try:
+            for index,url in enumerate(self.comic.filelist):
 
-            if not url.endswith('.jpg'):
-                formatted_file = os.path.join(self.worktree, f'{self.comic.title} ' + ''.join([str(index).zfill(3), '.jpg']))
-                print(formatted_file, end='\r')
-                urllib.request.urlretrieve(url, filename=formatted_file)
-            else:
-                page_number = str(index).zfill(3)
-                file_extension = url.split('/')[-1].split('.')[1]
+                if not url.endswith('.jpg'):
+                    formatted_file = os.path.join(self.worktree, f'{self.comic.title} ' + ''.join([str(index).zfill(3), '.jpg']))
+                    print(formatted_file, end='\r')
+                    urllib.request.urlretrieve(url, filename=formatted_file)
+                else:
+                    page_number = str(index).zfill(3)
+                    file_extension = url.split('/')[-1].split('.')[1]
 
-                if len(file_extension) > 3:
-                    file_extension = 'jpg'
+                    if len(file_extension) > 3:
+                        file_extension = 'jpg'
 
-                formatted_file = f'{self.comic.title} - {page_number}.{file_extension}'
-                print(formatted_file, end='\r',)
-                urllib.request.urlretrieve(url, filename=os.path.join(self.worktree, formatted_file))
+                    formatted_file = f'{self.comic.title} - {page_number}.{file_extension}'
+                    print(formatted_file, end='\r',)
+                    urllib.request.urlretrieve(url, filename=os.path.join(self.worktree, formatted_file))
+        except HTTPError:
+            # the page itself loads but the images (stored on another server) 4040
+            raise ReferenceError(f'Issue {self.comic.title} #{self.comic.issue_number} could not be found. The page may be down or the images might have errored: {self.comic.url}')
+
         print()
 
     def generate_archive(self, archive_format='.cbr'):

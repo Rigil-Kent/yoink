@@ -12,18 +12,19 @@ from yoink.scraper import Scrapable
 
 class BasicTestCase(unittest.TestCase):
     def setUp(self):
-        self.test_comic = 'http://readallcomics.com/static-season-one-4-2021/'
+        self.test_comic = 'http://readallcomics.com/static-season-one-6-2022/'
         self.test_comic_b = 'http://readallcomics.com/captain-marvel-vs-rogue-2021-part-1/'
         self.comic = Comic(self.test_comic)
         self.archiver = ComicArchiver(self.comic)
         self.remove_queue = []
-        self.expected_title = 'Static Season One 4 (2021)'
+        self.expected_title = 'Static Season One 6 (2022)'
         self.expected_title_b = 'Captain Marvel vs. Rogue (2021 – Part 1)'
         self.expected_category = 'Static: Season One'
         self.expected_category_b = 'Captain Marvel vs. Rogue'
-        self.expected_issue_num = 4
-        self.expected_next_url = 'http://readallcomics.com/static-season-one-5-2022/'
-        self.expected_prev_url = 'http://readallcomics.com/static-season-one-003-2021/'
+        self.expected_issue_num = 6
+        self.expected_next_url = None
+        self.expected_prev_url = 'http://readallcomics.com/static-season-one-5-2022/'
+        self.erroneous_comic = 'http://readallcomics.com/static-season-one-4-2021/'
 
         
     def tearDown(self) -> None:
@@ -81,4 +82,11 @@ class BasicTestCase(unittest.TestCase):
 
     def test_012_has_prev_link(self):
         self.assertEqual(self.comic.prev, self.expected_prev_url)
+
+    def test_013_broken_comic_images_raise_ref_error(self):
+        with self.assertRaises(ReferenceError) as condition:
+            Comic(self.erroneous_comic).archiver.download()
+
+        self.assertTrue('images might have errored' in str(condition.exception))
+
     
