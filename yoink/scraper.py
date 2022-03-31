@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import os
 from enum import Enum, auto
 
-from yoink.common import supported_sites, library_path
+from yoink.config import supported_sites, library_path
 
 
 

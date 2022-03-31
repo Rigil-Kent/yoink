@@ -1,4 +1,4 @@
-from yoink.common import required_comic_files, skippable_images, library_path
+from yoink.config import required_archive_files, skippable_images, library_path, config
 from yoink.scraper import Scrapable
 
 import os
@@ -102,13 +102,13 @@ class Comic(Scrapable):
 
 
     def can_remove(self, filename : str) -> bool:
-        return not filename.endswith(required_comic_files)
+        return not filename.endswith(config.skippable_images)
 
 
 class ComicArchiver:
     def __init__(self, comic : Comic, library=None) -> None:
         self.comic = comic
-        self.worktree = library if library else os.path.join(library_path, f'comics/{self.comic.title}')
+        self.worktree = library if library else os.path.join(config.library_path, f'comics/{self.comic.title}')
         self.queue = []
 
     def add(self, link : str) -> None:
@@ -155,7 +155,7 @@ class ComicArchiver:
 
     def cleanup_worktree(self):
         for image in os.listdir(self.worktree):
-            if not image.endswith(required_comic_files):
+            if not image.endswith(required_archive_files):
                 os.remove(os.path.join(self.worktree, image))
 
 if __name__ == '__main__':

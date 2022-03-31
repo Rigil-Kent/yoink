@@ -1,0 +1,62 @@
+{
+    "home_path": "",
+    "config_path": "",
+    "app_root": "",
+    "library_path": "/home/makubex/yoink/library",
+    "headers": {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36"
+    },
+    "skippable_images": ["logo-1.png","logo.png","report.png","request.png","prev.png","Next.png","Donate.png","11.png","navbar.svg"],
+    "supported_sites": [
+        {
+            "name": "readallcomics",
+            "url": "http://readallcomics.com",
+            "search": {
+                "default": {
+                    "element": "div",
+                    "class": "separator",
+                    "attrs": null
+                },
+                "no-div": {
+                    "element": "img",
+                    "class": null,
+                    "attrs": {
+                        "width": "1000px"
+                    }
+                },
+                "excaliber": {
+                    "element": "img",
+                    "class": null,
+                    "attrs": null
+                }
+            }
+        },
+        {
+            "name": "dragonballsupermanga",
+            "url": "https://www.dragonballsupermanga.net",
+            "search": {
+                "dbsuper": {
+                    "element": "meta",
+                    "class": null,
+                    "attrs": {
+                        "property": "twitter:image"
+                    }
+                }
+            }
+        },
+        {
+            "name": "mangadex",
+            "url": "https://www.mangadex.tv",
+            "search": {
+                "mangadex": {
+                    "element": "img",
+                    "class": null,
+                    "attrs": {
+                        "draggable": "false"
+                    }
+                }
+            }
+        }
+    ],
+    "plugins": []
+}
