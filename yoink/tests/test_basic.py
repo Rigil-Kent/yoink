@@ -4,7 +4,7 @@ import os
 import unittest
 from shutil import rmtree
 
-from yoink.common import app_root, library_path, config_path, skippable_images, supported_sites, required_comic_files
+from yoink.config import app_root, library_path, config_path, skippable_images, supported_sites, required_archive_files
 from yoink.comic import Comic, ComicArchiver
 from yoink.scraper import Scrapable
 
