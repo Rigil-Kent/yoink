@@ -83,6 +83,7 @@ class BasicTestCase(unittest.TestCase):
     def test_012_has_prev_link(self):
         self.assertEqual(self.comic.prev, self.expected_prev_url)
 
+    @unittest.skip("No error raised as image links have been restored")
     def test_013_broken_comic_images_raise_ref_error(self):
         with self.assertRaises(ReferenceError) as condition:
             Comic(self.erroneous_comic).archiver.download()
