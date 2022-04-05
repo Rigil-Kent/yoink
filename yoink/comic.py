@@ -42,7 +42,7 @@ class Comic(Scrapable):
 
             if len(comics) > 0:
                 return comics
-
+  
     @property
     def filelist(self) -> list:
         comics = self.__parse_soup()

@@ -1,0 +1,38 @@
+<!-- latest downloads - limit to a max of 6 -->
+{% macro latest_downloads(comics) %}
+    {% if comics %}
+    <div class="row">
+        <h2>Latest Downloads</h2>
+        {% for comic in comics %}
+            <div class="col col-md-3">
+                <div class="card">
+                    <img src="{{ url_for('download_file', filename=comic['cover']) }}" alt="{{ comic['title'] }}" class="card-image-top position-relative">
+                    <div class="card-body">
+                        <h4 class="card-title">{{ comic['title'] }}</h4>
+                        <p class="card-text">{{ comic['title'] }}</p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{{url_for('download_file', filename=comic.archive) }}" class="btn btn-info">Download Archive</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% else %}
+        <p>Empty Comic Library</p>
+    {% endif %}
+{% endmacro %}
+
+<!-- all downloaded comics - TODO: pagination -->
+{% macro all_downloads(comics) %}
+    {% if comics %}
+        {% for comic in comics %}
+
+        <h3>{{ comic['title'] }}</h3>
+        <img src="{{ url_for('download_file', filename=comic['cover']) }}">
+        
+        {% endfor %}
+    {% else %}
+        <p>Empty Comic Library</p>
+    {% endif %}
+{% endmacro %}

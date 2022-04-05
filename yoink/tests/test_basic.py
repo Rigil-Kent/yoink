@@ -15,7 +15,6 @@ class BasicTestCase(unittest.TestCase):
         self.test_comic = 'http://readallcomics.com/static-season-one-6-2022/'
         self.test_comic_b = 'http://readallcomics.com/captain-marvel-vs-rogue-2021-part-1/'
         self.comic = Comic(self.test_comic)
-        self.archiver = ComicArchiver(self.comic)
         self.remove_queue = []
         self.expected_title = 'Static Season One 6 (2022)'
         self.expected_title_b = 'Captain Marvel vs. Rogue (2021 – Part 1)'
@@ -46,16 +45,16 @@ class BasicTestCase(unittest.TestCase):
         self.assertEqual(len(os.listdir(os.path.join(library_path, 'comics'))), 0)
 
     def test_004_comic_folder_created_and_populated(self):
-        self.archiver.download()
+        self.comic.archiver.download()
         self.assertTrue(os.path.exists(os.path.join(library_path, f'comics/{self.comic.title}')))
         self.assertGreater(len(os.listdir(os.path.join(library_path, f'comics/{self.comic.title}'))), 0)
 
     def test_005_comic_archive_generated(self):
-        self.archiver.generate_archive()
+        self.comic.archiver.generate_archive()
         self.assertTrue(os.path.exists(os.path.join(library_path, f'comics/{self.comic.title}/{self.comic.title}.cbr')))
 
     def test_006_folder_cleaned_after_archive_generation(self):
-        self.archiver.cleanup_worktree()
+        self.comic.archiver.cleanup_worktree()
         self.assertLessEqual(len(os.listdir(os.path.join(library_path, f'comics/{self.comic.title}'))), 3)
 
     def test_007_comic_instance_has_archiver(self):

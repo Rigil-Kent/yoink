@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% import 'macros/library.html' as library %}
+
+{% block meta %}
+{{ super() }}
+<!-- Add additional meta tags here -->
+{% endblock %}
+
+{% block title %}Testing{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Y!oink Web App</h1>
+</div>
+
+<form method="post" onsubmit="download.disabled = true; url.readOnly = true; return true;">
+    {{ form.hidden_tag() }}
+    <div class="input-group mb-3">
+        {{ form.series.label(class_='input-group-text') }}
+        <div class="input-group-text">
+            {{ form.series() }}
+        </div>
+        
+        {{ form.url(class_='form-control') }}
+        {{ form.download(class_='btn btn-outline-primary') }}
+    </div>
+</form>
+
+{{ library.latest_downloads(latest) }}
+
+{% endblock %}

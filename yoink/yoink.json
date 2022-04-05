@@ -11,7 +11,7 @@
         {
             "name": "readallcomics",
             "url": "http://readallcomics.com",
-            "search": {
+            "filters": {
                 "default": {
                     "element": "div",
                     "class": "separator",
@@ -34,7 +34,7 @@
         {
             "name": "dragonballsupermanga",
             "url": "https://www.dragonballsupermanga.net",
-            "search": {
+            "filters": {
                 "dbsuper": {
                     "element": "meta",
                     "class": null,
@@ -47,7 +47,7 @@
         {
             "name": "mangadex",
             "url": "https://www.mangadex.tv",
-            "search": {
+            "filters": {
                 "mangadex": {
                     "element": "img",
                     "class": null,
