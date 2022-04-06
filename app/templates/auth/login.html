@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Yo!nk - Login{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Login</h1>
+</div>
+<div class="col-md-4">
+    <form method="post">
+        {{ form.hidden_tag() }}
+        {{ form.email.label }} {{ form.email() }}
+        {{ form.password.label }} {{ form.password() }}
+        {{ form.remember_me.label }} {{ form.remember_me() }}
+        {{ form.submit() }}
+    </form>
+    <p>New User? Click <a href="{{ url_for('auth.register') }}">here</a> to register a free account.</p>
+</div>
+{% endblock %}

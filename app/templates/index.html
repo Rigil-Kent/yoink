@@ -25,7 +25,11 @@
         {{ form.download(class_='btn btn-outline-primary') }}
     </div>
 </form>
-
+{% if current_user.is_authenticated %}
+<h2>{{ current_user.username }}'s Library</h2>
+{% else %}
+<h2>Comic Library</h2>
+{% endif %}
 {{ library.latest_downloads(latest) }}
 
 {% endblock %}
