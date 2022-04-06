@@ -13,5 +13,7 @@ before_script:
   - pip install -r requirements.txt
 test:
   script:
-    - pytest --junitxml report.xml yoink/tests/test_basic.py
+    - pytest --junitxml report.xml tests/test_basic.py
+    - pytest --junitxml report.xml tests/test_web.py
+    - pytest --junitxml report.xml tests/test_user_model.py
 
