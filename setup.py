@@ -10,7 +10,7 @@ with open('README.md', 'r') as readme:
 
 setuptools.setup(
     name='yoink',
-    version='0.2.0',
+    version='0.3.2',
     author='Bryan Bailey',
     author_email='brizzledev@gmail.com',
     description='',
