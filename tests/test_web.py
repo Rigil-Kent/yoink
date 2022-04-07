@@ -1,7 +1,5 @@
 import unittest
 
-from app import 
-
 from app import create_app, db, current_app
 
 
