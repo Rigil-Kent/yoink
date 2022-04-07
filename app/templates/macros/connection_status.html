@@ -1,0 +1,7 @@
+{% macro toggle_connection_status(status_code) %}
+{% if status_code == 200 %}
+{{ url_for('static', filename='up.png') }}
+{% else %}
+{{ url_for('static', filename='down.png') }}
+{% endif %}
+{% endmacro %}

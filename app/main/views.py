@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 
-from flask import render_template, session, send_from_directory, redirect, url_for, flash
+from flask import render_template, session, send_from_directory, redirect, url_for, flash, g
 
 from app.main import main
 from app.main.forms import DownloadForm
@@ -89,7 +89,7 @@ def index():
             latest = get_comic_library_meta()
             form.url.data = ''
 
-            return render_template('index.html', form=form, url=url, series=series, latest=latest), 200
+            return render_template('index.html', form=form, url=url, series=series, latest=latest, status=g.status_code), 200
 
 
         if form.series.data:

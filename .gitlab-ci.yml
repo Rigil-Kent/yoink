@@ -15,5 +15,5 @@ test:
   script:
     - pytest --junitxml report.xml tests/test_basic.py
     - pytest --junitxml report.xml tests/test_web.py
-    - pytest --junitxml report.xml tests/test_user_model.py
+    - pytest --junitxml report.xml tests/test_model_user.py
 

@@ -1,9 +1,14 @@
-from distutils.command.config import config
-from flask import Flask
+import atexit
+
+from apscheduler.schedulers.background import BackgroundScheduler
+import requests
+
+from flask import Flask, current_app, g
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
+
 from config import configuration, DevelopmentConfig, TestingConfig, ProductionConfig
 
 
@@ -13,6 +18,14 @@ moment = Moment()
 db = SQLAlchemy()
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
+
+def scheduled_task(func, seconds=60, args=None):
+
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=func, trigger='interval', seconds=seconds, args=args)
+    scheduler.start()
+
+    atexit.register(lambda: scheduler.shutdown())
 
 
 def create_app(config_name):

@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% import 'macros/library.html' as library %}
+{% import 'macros/connection_status.html' as connection %}
+
 
 {% block meta %}
 {{ super() }}
@@ -12,7 +14,6 @@
 <div class="page-header">
     <h1>Y!oink Web App</h1>
 </div>
-
 <form method="post" onsubmit="download.disabled = true; url.readOnly = true; return true;">
     {{ form.hidden_tag() }}
     <div class="input-group mb-3">
