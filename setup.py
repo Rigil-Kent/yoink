@@ -28,5 +28,5 @@ setuptools.setup(
             'yoink = yoink.cli:yoink'
         ]
     },
-    install_requires=['click', 'bs4', 'requests']
+    install_requires=['click', 'bs4', 'requests', 'click-default-group']
 )
