@@ -82,7 +82,14 @@ class Comic(Scrapable):
 
     @property
     def volume(self) -> int:
-        return
+        delimiter = ' v'
+        try:
+            if self.title.find(delimiter) and self.title[self.title.index(delimiter) + 2].isdigit():
+                return self.title[self.title.index(delimiter) + 2]
+            else:
+                return 1
+        except ValueError:
+            return 1
 
     @property
     def next(self) -> str:
@@ -160,11 +167,13 @@ def clean_up(comic: Comic):
 
 
 if __name__ == '__main__':
-    comic = Comic('http://www.readallcomics.com/static-season-one-4-2021/') # all links
+    # comic = Comic('http://www.readallcomics.com/static-season-one-4-2021/') # all links
+    comic = Comic('http://readallcomics.com/x-men-v6-12-2022/')
     # comic = Comic('http://readallcomics.com/static-season-one-001-2021/') # no prev link
     # comic = Comic('http://readallcomics.com/static-season-one-6-2022/') # no next link
     # comic = Comic('http://readallcomics.com/superman-vs-lobo-4-2022/')
-    # test_comic_b = 'http://readallcomics.com/captain-marvel-vs-rogue-2021-part-1/'
+    # comic = Comic('http://readallcomics.com/captain-marvel-vs-rogue-2021-part-1/')
+    print(comic.volume)
     # print(comic.next)
     # print(comic.prev)
     # print(comic.issue_number)

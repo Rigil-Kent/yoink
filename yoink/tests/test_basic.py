@@ -5,7 +5,7 @@ import unittest
 from shutil import rmtree
 
 from yoink.config import app_root, library_path, config_path, skippable_images, supported_sites, required_archive_files
-from yoink.comic import Comic, ComicArchiver
+from yoink.comic import Comic, download_comic_files, generate_archive, clean_up
 from yoink.scraper import Scrapable
 
 
@@ -15,13 +15,13 @@ class BasicTestCase(unittest.TestCase):
         self.test_comic = 'http://readallcomics.com/static-season-one-6-2022/'
         self.test_comic_b = 'http://readallcomics.com/captain-marvel-vs-rogue-2021-part-1/'
         self.comic = Comic(self.test_comic)
-        self.archiver = ComicArchiver(self.comic)
         self.remove_queue = []
         self.expected_title = 'Static Season One 6 (2022)'
         self.expected_title_b = 'Captain Marvel vs. Rogue (2021 – Part 1)'
         self.expected_category = 'Static: Season One'
         self.expected_category_b = 'Captain Marvel vs. Rogue'
         self.expected_issue_num = 6
+        self.expected_vol_num = 1
         self.expected_next_url = None
         self.expected_prev_url = 'http://readallcomics.com/static-season-one-5-2022/'
         self.erroneous_comic = 'http://readallcomics.com/static-season-one-4-2021/'
@@ -39,27 +39,27 @@ class BasicTestCase(unittest.TestCase):
     def test_001_comic_has_valid_title(self):
         self.assertEqual(self.expected_title, self.comic.title)
 
-    def test_002_comic_has_valid_category(self):
+    def test_002_comic_has_valid_volume_numer(self):
+        self.assertEqual(self.expected_vol_num, self.comic.volume)
+
+    def test_003_comic_has_valid_category(self):
         self.assertEqual(self.expected_category, self.comic.category)
 
-    def test_003_empty_comic_folder(self):
+    def test_004_empty_comic_folder(self):
         self.assertEqual(len(os.listdir(os.path.join(library_path, 'comics'))), 0)
 
-    def test_004_comic_folder_created_and_populated(self):
-        self.archiver.download()
+    def test_005_comic_folder_created_and_populated(self):
+        download_comic_files(self.comic)
         self.assertTrue(os.path.exists(os.path.join(library_path, f'comics/{self.comic.title}')))
         self.assertGreater(len(os.listdir(os.path.join(library_path, f'comics/{self.comic.title}'))), 0)
 
-    def test_005_comic_archive_generated(self):
-        self.archiver.generate_archive()
+    def test_006_comic_archive_generated(self):
+        generate_archive(self.comic)
         self.assertTrue(os.path.exists(os.path.join(library_path, f'comics/{self.comic.title}/{self.comic.title}.cbr')))
 
-    def test_006_folder_cleaned_after_archive_generation(self):
-        self.archiver.cleanup_worktree()
+    def test_007_folder_cleaned_after_archive_generation(self):
+        clean_up(self.comic)
         self.assertLessEqual(len(os.listdir(os.path.join(library_path, f'comics/{self.comic.title}'))), 3)
-
-    def test_007_comic_instance_has_archiver(self):
-        self.assertIsInstance(self.comic.archiver, ComicArchiver)
 
     def test_008_comic_is_subclass_scrapable(self):
         self.assertTrue(issubclass(Comic, Scrapable))

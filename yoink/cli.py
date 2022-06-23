@@ -50,8 +50,6 @@ def init():
 
 
 @yoink.command()
-# @click.option('-c', '--comic', is_flag=True, help='Download a Comic file')
-# @click.option('-t', '--torrent', is_flag=True, help='Download a Torrent')
 @click.option('-s', '--series', is_flag=True, help='Download the entire series')
 @click.argument('url')
 def download(url, series):
