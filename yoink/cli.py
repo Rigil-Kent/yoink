@@ -6,7 +6,7 @@ import click
 from click_default_group import DefaultGroup
 
 from yoink.config import  YoinkConfig, app_root, config_from_file, library_path, config_path
-from yoink.comic import Comic
+from yoink.comic import Comic, download_comic_files, generate_archive, clean_up
 
 
 
@@ -22,13 +22,13 @@ def download_comic(url, series):
         return 1
 
     click.echo(f'Downloading {comic.title}')
-    comic.archiver.download()
+    download_comic_files(comic)
 
     click.echo('Building comic archive')
-    comic.archiver.generate_archive()
+    generate_archive(comic)
 
     click.echo('Cleaning up')
-    comic.archiver.cleanup_worktree()
+    clean_up(comic)
 
     click.echo('Success')
 

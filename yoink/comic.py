@@ -1,5 +1,5 @@
 from urllib.error import HTTPError
-from yoink.config import required_archive_files, skippable_images, library_path, config
+from yoink.config import required_archive_files, skippable_images, config
 from yoink.scraper import Scrapable
 
 import os
@@ -12,7 +12,6 @@ import re
 class Comic(Scrapable):
     def __init__(self, url, path=None) -> None:
         super().__init__(url)
-        self.archiver = ComicArchiver(self, library=path)
 
     def __is_supported_image(self, image):
         return image.endswith('.jpg' or '.jpeg')
@@ -106,63 +105,59 @@ class Comic(Scrapable):
         return not filename.endswith(config.skippable_images)
 
 
-class ComicArchiver:
-    def __init__(self, comic : Comic, library=None) -> None:
-        self.comic = comic
-        self.worktree = library if library else os.path.join(config.library_path, f'comics/{self.comic.title}')
-        self.queue = []
 
-    def add(self, link : str) -> None:
-        self.queue.append(link)
-    
-    def download(self) -> None:
+def download_comic_files(comic: Comic, worktree = None):
+    if not worktree:
+        worktree = os.path.join(config.library_path, f'comics/{comic.title}')
 
-        if not os.path.exists(self.worktree):
-            os.makedirs(self.worktree, mode=0o777)
+    if not os.path.exists(worktree):
+        os.makedirs(worktree, mode=0o777)
 
-        opener = urllib.request.build_opener()
-        opener.addheaders = [('User-Agent', 'Mozilla/5.0')]
-        urllib.request.install_opener(opener)
+    opener = urllib.request.build_opener()
+    opener.addheaders = [('User-Agent', "Mozilla/5.0")]
+    urllib.request.install_opener(opener)
 
-        try:
-            for index,url in enumerate(self.comic.filelist):
+    try:
+        for index,url in enumerate(comic.filelist):
+            if not url.endswith('.jpg'):
+                formatted_file = os.path.join(worktree, f'{comic.title} ' + ''.join([str(index).zfill(3), '.jpg']))
+                print(formatted_file, end='\r')
+                urllib.request.urlretrieve(url, filename=formatted_file)
+            else:
+                page_number = str(index).zfill(3)
+                file_extension = url.split('/')[-1].split('.')[1]
 
-                if not url.endswith('.jpg'):
-                    formatted_file = os.path.join(self.worktree, f'{self.comic.title} ' + ''.join([str(index).zfill(3), '.jpg']))
-                    print(formatted_file, end='\r')
-                    urllib.request.urlretrieve(url, filename=formatted_file)
-                else:
-                    page_number = str(index).zfill(3)
-                    file_extension = url.split('/')[-1].split('.')[1]
+                if len(file_extension) > 3:
+                    file_extension = 'jpg'
 
-                    if len(file_extension) > 3:
-                        file_extension = 'jpg'
+                formatted_file = f'{comic.title} - {page_number}.{file_extension}'
+                print(formatted_file, end='\r',)
+                urllib.request.urlretrieve(url, filename=os.path.join(worktree, formatted_file))
+    except HTTPError:
+        # the page itself loads but the images (stored on another server) 4040
+        raise ReferenceError(f'Issue {comic.title} #{comic.issue_number} could not be found. The page may be down or the images might have errored: {self.comic.url}')
 
-                    formatted_file = f'{self.comic.title} - {page_number}.{file_extension}'
-                    print(formatted_file, end='\r',)
-                    urllib.request.urlretrieve(url, filename=os.path.join(self.worktree, formatted_file))
-        except HTTPError:
-            # the page itself loads but the images (stored on another server) 4040
-            raise ReferenceError(f'Issue {self.comic.title} #{self.comic.issue_number} could not be found. The page may be down or the images might have errored: {self.comic.url}')
+def generate_archive(comic: Comic, worktree = None, archive_format = '.cbr'):
+    if not worktree:
+        worktree = os.path.join(config.library_path, f'comics/{comic.title}')
 
-        print()
+    archive_from = os.path.basename(worktree)
+    if os.path.exists(os.path.join(worktree, f'{comic.title}{archive_format}')):
+        return
 
-    def generate_archive(self, archive_format='.cbr'):
+    output = shutil.make_archive(comic.title, 'zip', worktree, worktree)
+    # os.rename causes OSError: [Errno 18] Invalid cross-device link and files build test
+    # os rename only works if src and dest are on the same file system
+    shutil.move(output, os.path.join(worktree, f'{comic.title}{archive_format}'))
 
-        archive_from = os.path.basename(self.worktree)
-        if os.path.exists(os.path.join(self.worktree, f'{self.comic.title}{archive_format}')):
-            return
+def clean_up(comic: Comic):
+    worktree = os.path.join(config.library_path, f'comics/{comic.title}')
 
-        output = shutil.make_archive(self.comic.title, 'zip', self.worktree, self.worktree)
-        # os.rename casuses OSError: [Errno 18] Invalid cross-device link and files build test
-        # os rename only works if src and dest are on the same file system
-        shutil.move(output, os.path.join(self.worktree, f'{self.comic.title}{archive_format}'))
-
-
-    def cleanup_worktree(self):
-        for image in os.listdir(self.worktree):
+    for image in os.listdir(worktree):
             if not image.endswith(required_archive_files):
-                os.remove(os.path.join(self.worktree, image))
+                os.remove(os.path.join(worktree, image))
+                
+
 
 if __name__ == '__main__':
     comic = Comic('http://www.readallcomics.com/static-season-one-4-2021/') # all links
